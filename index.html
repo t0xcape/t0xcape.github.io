@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Выходные с Папой</title>
+    
+    <!-- PWA Метки (чтобы работало как приложение на телефоне) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="data:application/manifest+json,{name:'ПапаПлан',icons:[{src:'https://cdn-icons-png.flaticon.com/512/2942/2942909.png',sizes:'512x512',type:'image/png'}],theme_color:'#3b82f6',background_color:'#f3f4f6',display:'standalone'}">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: #f3f4f6;
+            padding: 16px;
+            padding-bottom: 30px;
+            color: #1f2937;
+        }
+
+        /* Шапка */
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #111827;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        /* Карточка добавления */
+        .add-card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px; /* Важно для зума на мобилках */
+            border: 1.5px solid #e5e7eb;
+            border-radius: 16px;
+            background-color: #f9fafb;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Переключатель Кто (Я / Папа) */
+        .who-switch {
+            display: flex;
+            gap: 12px;
+        }
+
+        .who-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4b5563;
+        }
+
+        .who-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Кнопка Добавить */
+        .add-btn {
+            width: 100%;
+            padding: 18px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 8px 14px -6px rgba(16, 185, 129, 0.4);
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+            background: #059669;
+        }
+
+        .add-btn:disabled {
+            background: #9ca3af;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Таблица */
+        .schedule-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            color: #3b82f6;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            padding: 14px 8px;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            text-align: left;
+        }
+
+        td {
+            padding: 14px 8px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Бейджик для Кто */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .badge.me {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge.dad {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Состояние загрузки */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        /* Статус сообщение */
+        #statusMessage {
+            text-align: center;
+            margin-top: 12px;
+            font-weight: 500;
+            min-height: 24px;
+            transition: 0.3s;
+        }
+
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+
+        /* Адаптация под очень маленькие экраны */
+        @media (max-width: 400px) {
+            body { padding: 12px; }
+            th, td { padding: 10px 4px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📅 Выходные</h1>
+    <div class="subtitle">С папой</div>
+
+    <!-- ФОРМА ДОБАВЛЕНИЯ -->
+    <div class="add-card">
+        <div class="form-group">
+            <label>📆 Дата</label>
+            <input type="date" id="eventDate" required>
+        </div>
+
+        <div class="form-group">
+            <label>👤 Кто планирует</label>
+            <div class="who-switch">
+                <div id="whoMe" class="who-btn active" data-who="Ванек">🙋‍♂️ Ванек</div>
+                <div id="whoDad" class="who-btn" data-who="Костян">👨 Костян</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>🎯 Тип мероприятия</label>
+            <select id="eventType">
+                <option value="Прогулка">🚶 Прогулка</option>
+                <option value="Кино">🎬 Кино</option>
+                <option value="Кафе/Ресторан">🍽️ Кафе/Ресторан</option>
+                <option value="Спорт">⚽ Спорт</option>
+                <option value="Рыбалка">🎣 Рыбалка</option>
+                <option value="Ремонт/Дела">🔧 Ремонт/Дела</option>
+                <option value="Поездка">🚗 Поездка</option>
+                <option value="Другое">✨ Другое</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>💬 Комментарий</label>
+            <textarea id="eventComment" rows="2" placeholder="Например: Взять удочки или не опаздывать..."></textarea>
+        </div>
+
+        <button class="add-btn" id="addButton">➕ Добавить в план</button>
+        <div id="statusMessage"></div>
+    </div>
+
+    <!-- ТАБЛИЦА -->
+    <div class="schedule-title">
+        <span>📋 Расписание</span>
+        <button class="refresh-btn" id="refreshButton">🔄 Обновить</button>
+    </div>
+
+    <div class="table-container">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Кто</th>
+                    <th>Тип</th>
+                    <th>Комментарий</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr><td colspan="4" class="loading">Загрузка планов...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5ptM_wr416MtwZa8ORy7GayzotF1QGDFn21yX0pJBDx_h0Sw2dgqA9l3W5w3kOGNXdQ/exec'; 
+        // Переменные DOM
+        const whoMe = document.getElementById('whoMe');
+        const whoDad = document.getElementById('whoDad');
+        const addButton = document.getElementById('addButton');
+        const refreshButton = document.getElementById('refreshButton');
+        const tableBody = document.getElementById('tableBody');
+        const statusDiv = document.getElementById('statusMessage');
+        const eventDate = document.getElementById('eventDate');
+        const eventType = document.getElementById('eventType');
+        const eventComment = document.getElementById('eventComment');
+        
+        let currentWho = 'Ванек'; // По умолчанию
+
+        // Установка даты по умолчанию (сегодня)
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        eventDate.value = `${yyyy}-${mm}-${dd}`;
+
+        // Переключатели Кто
+        whoMe.addEventListener('click', () => {
+            whoMe.classList.add('active');
+            whoDad.classList.remove('active');
+            currentWho = 'Ванек';
+        });
+        
+        whoDad.addEventListener('click', () => {
+            whoDad.classList.add('active');
+            whoMe.classList.remove('active');
+            currentWho = 'Костян';
+        });
+
+        // Функция отображения сообщений
+        function setStatus(text, isError = false) {
+            statusDiv.textContent = text;
+            statusDiv.className = isError ? 'error' : 'success';
+            if (!isError) {
+                setTimeout(() => { statusDiv.textContent = ''; }, 3000);
+            }
+        }
+
+        // Функция загрузки и отображения данных
+        async function loadSchedule() {
+            tableBody.innerHTML = '<tr><td colspan="4" class="loading">🔄 Обновление...</td></tr>';
+            
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
+                
+                // Если пришла ошибка от Google
+                if (data.result === 'error') {
+                    throw new Error(data.message);
+                }
+                
+                // data - это массив массивов. Первый элемент - шапка
+                if (data.length <= 1) {
+                    tableBody.innerHTML = '<tr><td colspan="4" class="empty-message">Пока планов нет.<br>Добавьте первое мероприятие 👆</td></tr>';
+                    return;
+                }
+                
+                let html = '';
+                // Идем с конца (последние записи сверху) и пропускаем шапку
+                for (let i = data.length - 1; i > 0; i--) {
+                    const row = data[i];
+                    // row = [Дата, Кто, Тип, Комментарий]
+                    const dateRaw = row[0] || '';
+                    const who = row[1] || '';
+                    const type = row[2] || '';
+                    const comment = row[3] || '—';
+                    
+                    // Форматируем дату (если это объект Date из таблицы)
+                    let dateStr = dateRaw;
+                    if (dateRaw instanceof Date || (typeof dateRaw === 'string' && dateRaw.includes('T'))) {
+                        const d = new Date(dateRaw);
+                        dateStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth()+1).padStart(2, '0')}.${d.getFullYear()}`;
+                    } else if (typeof dateRaw === 'string' && dateRaw.includes('-')) {
+                        // если пришло как YYYY-MM-DD
+                        const parts = dateRaw.split('-');
+                        if (parts.length === 3) {
+                            dateStr = `${parts[2]}.${parts[1]}.${parts[0]}`;
+                        }
+                    }
+                    
+                    const badgeClass = (who === 'Я') ? 'me' : 'dad';
+                    
+                    html += `<tr>
+                        <td><strong>${dateStr}</strong></td>
+                        <td><span class="badge ${badgeClass}">${who}</span></td>
+                        <td>${type}</td>
+                        <td>${comment}</td>
+                    </tr>`;
+                }
+                
+                tableBody.innerHTML = html;
+                
+            } catch (error) {
+                console.error(error);
+                tableBody.innerHTML = '<tr><td colspan="4" class="error">❌ Ошибка загрузки.<br>Проверьте интернет и ссылку.</td></tr>';
+                setStatus('Не удалось загрузить расписание', true);
+            }
+        }
+
+        // Функция добавления записи
+        async function addEvent() {
+            const dateVal = eventDate.value;
+            if (!dateVal) {
+                setStatus('❓ Выберите дату', true);
+                return;
+            }
+            
+            const typeVal = eventType.value;
+            const commentVal = eventComment.value || '';
+            
+            // Блокируем кнопку на время запроса
+            addButton.disabled = true;
+            addButton.textContent = '⏳ Добавляем...';
+            setStatus('Отправка данных...');
+            
+            const payload = {
+                date: dateVal,
+                who: currentWho,
+                type: typeVal,
+                comment: commentVal
+            };
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Google Apps Script требует этот режим для POST из браузера, если нет CORS
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                // Из-за no-cors мы не можем прочитать ответ, но мы знаем что скорее всего ОК
+                // Поэтому просто перезагружаем таблицу
+                
+                setStatus('✅ Добавлено!');
+                eventComment.value = ''; // Очищаем комментарий
+                
+                // Немного ждем, чтобы Гугл точно сохранил данные (иногда бывает задержка)
+                setTimeout(() => {
+                    loadSchedule();
+                }, 800);
+                
+            } catch (error) {
+                console.error(error);
+                setStatus('❌ Ошибка сети. Попробуйте еще раз.', true);
+            } finally {
+                addButton.disabled = false;
+                addButton.textContent = '➕ Добавить в план';
+            }
+        }
+
+        // Обработчики событий
+        addButton.addEventListener('click', addEvent);
+        refreshButton.addEventListener('click', loadSchedule);
+        
+        // Загрузка при старте
+        window.addEventListener('load', () => {
+            loadSchedule();
+            
+            // Инструкция для iOS
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                setTimeout(() => {
+                    const hint = document.createElement('div');
+                    hint.style.cssText = 'background:#eef2ff;padding:12px;border-radius:16px;margin-bottom:16px;color:#1e40af;font-size:14px;text-align:center;';
+                    hint.innerHTML = '💡 Нажмите кнопку "Поделиться" → "На экран Домой"<br>чтобы установить как приложение';
+                    document.body.insertBefore(hint, document.body.firstChild);
+                }, 1000);
+            }
+        });
+        
+        // PWA: предотвращаем pull-to-refresh (чтобы было как в приложении)
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target === document.body && window.scrollY === 0) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+    </script>
+</body>
+</html>
