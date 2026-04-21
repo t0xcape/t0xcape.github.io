@@ -269,15 +269,16 @@
         <div class="form-group">
             <label>🎯 Тип мероприятия</label>
             <select id="eventType">
-                <option value="Прогулка">🚶 Прогулка</option>
-                <option value="Кино">🎬 Кино</option>
-		<option value="Настолки">🃏 Настолки</option>
-                <option value="Кафе/Ресторан">🍽️ Кафе/Ресторан</option>
-                <option value="Спорт">⚽ Спорт</option>
-                <option value="Рыбалка">🎣 Рыбалка</option>
-                <option value="Ремонт/Дела">🔧 Ремонт/Дела</option>
-                <option value="Поездка">🚗 Поездка</option>
-                <option value="Другое">✨ Другое</option>
+                <option value="🚶 Прогулка">🚶 Прогулка</option>
+                <option value="🎬 Кино">🎬 Кино</option>
+		<option value="🃏 Настолки">🃏 Настолки</option>
+		<option value="🖥️ Компы">🖥️ Компы</option>
+                <option value="🍽️ Кафе/Ресторан">🍽️ Кафе/Ресторан</option>
+                <option value="⚽ Спорт">⚽ Спорт</option>
+                <option value="🎣 Рыбалка">🎣 Рыбалка</option>
+                <option value="🔧 Ремонт/Дела">🔧 Ремонт/Дела</option>
+                <option value="🚗 Поездка">🚗 Поездка</option>
+                <option value="✨ Другое">✨ Другое</option>
             </select>
         </div>
 
@@ -313,7 +314,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5ptM_wr416MtwZa8ORy7GayzotF1QGDFn21yX0pJBDx_h0Sw2dgqA9l3W5w3kOGNXdQ/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxqGzLgpOdzwI_9mixIEBMxoMk-iHlivheGwdFvB0nUqVww_4HuUfmbMk6l1pxVCzIUQg/exec'; 
         // Переменные DOM
         const whoMe = document.getElementById('whoMe');
         const whoDad = document.getElementById('whoDad');
@@ -398,7 +399,7 @@
                         }
                     }
                     
-                    const badgeClass = (who === 'Я') ? 'me' : 'dad';
+                    const badgeClass = (who === 'Ванек') ? 'me' : 'dad';
                     
                     html += `<tr>
                         <td><strong>${dateStr}</strong></td>
